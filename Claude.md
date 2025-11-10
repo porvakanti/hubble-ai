@@ -12,13 +12,14 @@ Includes CLI and Streamlit UI. Cloud scheduling stubs (Azure ML, SageMaker) prov
 
 ## Critical Reference Documents
 
-**Location:** `/mnt/project/` (read-only project files)
+**Location:** `docs/` (project documentation)
 
 Claude Code MUST review these documents before implementation:
 
 1. **`TCFF_Conversation.docx`** - Full project context, business requirements, technical decisions, accuracy targets
 2. **`Comprehensive_Feature_List_for_Forecasting_Model.docx`** - Complete feature engineering specification (~118 features)
-3. **`input_Data_model_Treasury_Cash_flow_forecast.jpg`** - Data model visualization
+3. **`Business case`**
+4. **`Requirements doc`**
 
 **Location:** `data/reference/`
 4. **`entity_liquidity_map.csv`** - Entity → {TRR, TRP} mapping (defines bottom hierarchy)
@@ -28,7 +29,7 @@ Claude Code MUST review these documents before implementation:
 6. **Liquidity Plan (LP) data** - Treasury's 4-week forward forecasts  
 7. **FX rates** - Historical EUR exchange rates for currency conversion
 
-**Note for V1:** Data provided as Excel extracts. Future: direct connection to data sources (DENODO, etc.) with full pipeline from scratch each week to handle data/model drift.
+**Note for V1:** Data provided as Excel extracts. Future: direct connection to data sources (DENODO, or Databricks, or S3 or Blob storage etc.) with full pipeline from scratch each week to handle data/model drift.
 
 ---
 
