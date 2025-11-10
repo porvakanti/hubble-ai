@@ -118,17 +118,25 @@ class HierarchicalReconciler:
         if self.S_matrix is None:
             raise ValueError("Summing matrix not built. Call build_summing_matrix first.")
 
-        S = self.S_matrix
-        n_bottom = S.shape[1]
+        S = self.S_matrix  # (m, n_bottom)
+        m = S.shape[0]     # Total hierarchy size
+        n_bottom = S.shape[1]  # Bottom series count
 
-        # Always create fresh W_inv for current reconciliation
-        # (don't reuse from previous reconciliation with different dimensions)
-        W_inv = np.eye(n_bottom)
+        # W_inv should be (m, m) for the full hierarchy, not (n_bottom, n_bottom)
+        # For OLS, we use identity for all series
+        W_inv = np.eye(m)
 
         logger.debug(
             f"Reconciliation dimensions: S={S.shape}, W_inv={W_inv.shape}, "
-            f"base_forecasts={base_forecasts.shape}"
+            f"base_forecasts={base_forecasts.shape}, m={m}, n_bottom={n_bottom}"
         )
+
+        # Validate dimensions
+        if len(base_forecasts) != m:
+            raise ValueError(
+                f"base_forecasts length {len(base_forecasts)} doesn't match "
+                f"hierarchy size {m}"
+            )
 
         # MinT formula
         try:
