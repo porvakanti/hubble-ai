@@ -1,0 +1,23 @@
+Entity,Entity Name,TRR_active,TRP_active,Comments
+057,ASSS LUXEMBOURG,TRUE,TRUE,-
+11G5,RECYCO,FALSE,TRUE,Usually just TRP
+14C1,APERAM SOURCING SCA,FALSE,TRUE,Usually just TRP
+17C7,APERAM S.A.,FALSE,TRUE,Usually just TRP
+20B2,ASB Recycling,TRUE,TRUE,No LP inputs presently
+25A4,UNIVERSAL STAINLESS & ALLOY PRODUCTS INC. - CORPORATE,TRUE,TRUE,Recent acquisition; LP started recently
+4B9,ASSS TUBES CZ,TRUE,TRUE,LP updates sometimes missing; liquidity mix unspecified
+82J,ASSS USA,TRUE,TRUE,"In the past, they were not consistent in providing weekly LP updates. However, they are now reporting LP every week and are back on track"
+86W,APERAM STAINLESS EUROPE,TRUE,TRUE,"Usually TRR, with small amount of payables"
+97C,APERAM ALLOYS IMPHY,TRUE,TRUE,-
+97L,ASSS SWITZERLAND,TRUE,TRUE,-
+97R,ASSS POLAND,TRUE,TRUE,-
+98Y,ASSS CANADA,TRUE,TRUE,-
+T055,APERAM STAINLESS BELGIUM DIS,TRUE,TRUE,"Usually TRR, with small amount of payables"
+T056,APERAM STAINLESS BELGIUM IND,FALSE,TRUE,Usually just TRP
+V002,APERAM STAINLESS FRANCE,FALSE,TRUE,Usually just TRP
+V265,ASSS PRECISION,TRUE,TRUE,"Usually TRR, with small amount of payables"
+V508,ASSS FRANCE,TRUE,TRUE,-
+V751,ASSS IBERICA,TRUE,TRUE,-
+V756,ASSS ITALY,TRUE,TRUE,-
+V798,ASSS GERMANY,TRUE,TRUE,-
+,,,,
