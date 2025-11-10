@@ -118,13 +118,17 @@ class HierarchicalReconciler:
         if self.S_matrix is None:
             raise ValueError("Summing matrix not built. Call build_summing_matrix first.")
 
-        if self.W_inv is None:
-            # Default to OLS (identity)
-            n_bottom = self.S_matrix.shape[1]
-            self.W_inv = np.eye(n_bottom)
-
         S = self.S_matrix
-        W_inv = self.W_inv[:S.shape[1], :S.shape[1]]  # Ensure matching dims
+        n_bottom = S.shape[1]
+
+        # Always create fresh W_inv for current reconciliation
+        # (don't reuse from previous reconciliation with different dimensions)
+        W_inv = np.eye(n_bottom)
+
+        logger.debug(
+            f"Reconciliation dimensions: S={S.shape}, W_inv={W_inv.shape}, "
+            f"base_forecasts={base_forecasts.shape}"
+        )
 
         # MinT formula
         try:
@@ -164,6 +168,17 @@ class HierarchicalReconciler:
         """
         logger.info("Reconciling forecasts for all quantiles")
 
+        # Use only entities that actually exist in forecasts
+        entities_in_forecasts = sorted(forecasts_df['entity_id'].unique().tolist())
+
+        if set(entities_in_forecasts) != set(entities):
+            logger.warning(
+                f"Entity mismatch: provided {len(entities)} entities, "
+                f"but forecasts have {len(entities_in_forecasts)} entities. "
+                f"Using entities from forecasts."
+            )
+            entities = entities_in_forecasts
+
         # Build summing matrix
         self.build_summing_matrix(entities)
 
@@ -179,13 +194,24 @@ class HierarchicalReconciler:
             bottom_forecasts = []
             for entity in entities:
                 for liq_group in ['TRR', 'TRP']:
-                    val = forecasts_df[
-                        (forecasts_df['entity_id'] == entity) &
-                        (forecasts_df['liquidity_group'] == liq_group)
-                    ][q].values
-                    bottom_forecasts.append(val[0] if len(val) > 0 else 0)
+                    mask = (forecasts_df['entity_id'] == entity) & (forecasts_df['liquidity_group'] == liq_group)
+                    val = forecasts_df[mask][q].values
+                    if len(val) > 0:
+                        bottom_forecasts.append(val[0])
+                    else:
+                        # Missing forecast - log warning and use 0
+                        logger.warning(f"Missing forecast for {entity} {liq_group} in {q}, using 0")
+                        bottom_forecasts.append(0)
 
             bottom_forecasts = np.array(bottom_forecasts)
+
+            # Validate shape matches summing matrix
+            expected_bottom = self.S_matrix.shape[1]
+            if len(bottom_forecasts) != expected_bottom:
+                raise ValueError(
+                    f"Bottom forecasts shape mismatch: got {len(bottom_forecasts)}, "
+                    f"expected {expected_bottom} (2 × {len(entities)} entities)"
+                )
 
             # Build full hierarchy (base forecasts)
             base_forecasts = self.S_matrix @ bottom_forecasts
