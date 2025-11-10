@@ -1,0 +1,295 @@
+# Hubble.AI - Treasury Cash-Flow Forecasting Platform
+# Main Configuration File
+
+project:
+  name: "Hubble.AI Treasury Forecasting"
+  version: "1.0.0"
+  timezone: "Europe/Luxembourg"
+  week_close: "Tuesday 12:00"  # Weekly cut-off for ingestion
+  currency: "EUR"
+
+# File paths (relative to project root)
+paths:
+  raw: "data/raw/"
+  intermediate: "data/intermediate/"
+  features: "data/features/"
+  reference: "data/reference/"
+  artifacts: "artifacts/"
+  models: "artifacts/models/"
+  metrics: "artifacts/metrics/"
+  forecasts: "artifacts/forecasts/"
+
+# Data backend configuration
+data_backend:
+  profile: "local"  # local | s3 | azure_blob | databricks_delta | denodo
+  options:
+    # AWS S3
+    s3_bucket: ""
+    s3_prefix: "hubble-ai/"
+    s3_region: "us-east-1"
+
+    # Azure Blob Storage
+    azure_container: ""
+    azure_account_url: ""
+
+    # Databricks Delta Lake
+    databricks_catalog: ""
+    databricks_schema: ""
+    databricks_host: ""
+
+    # DENODO
+    denodo_dsn: ""
+    denodo_user: ""
+    denodo_database: ""
+
+# Data validation rules
+validation:
+  schema:
+    fail_on_missing_columns: true
+    fail_on_dtype_mismatch: true
+  quality:
+    max_missing_pct: 0.01  # 1% max missing values per entity-liquidity group
+    max_date_gaps_pct: 0.01  # 1% max date continuity gaps
+    sign_enforcement: true  # TRR >= 0, TRP <= 0
+  outliers:
+    z_score_threshold: 5.0  # Flag values beyond 5 std devs
+    iqr_multiplier: 3.0
+
+# Preprocessing configuration
+preprocessing:
+  daily_to_weekly:
+    aggregation: "sum"  # Sum daily transactions to weekly
+    week_start: "Monday"  # ISO week convention
+    min_history_date: "2022-01-01"
+  currency_conversion:
+    base_currency: "EUR"
+    fx_source: "ECB"  # European Central Bank rates
+
+# Feature engineering (~118 features)
+features:
+  # Daily-level features (calculated before weekly aggregation)
+  daily_patterns:
+    enabled: true
+    features:
+      - "Pct_Txn_Month_End_Day"      # % transactions on month-end day
+      - "Pct_Txn_First_Day"          # % transactions on first day of month
+      - "Pct_Txn_Last_Day"           # % transactions on last day of month
+      - "Pct_Txn_Friday"             # % transactions on Friday
+      - "Daily_Std_Within_Week"      # Std dev of daily amounts within week
+      - "Daily_CV_Within_Week"       # Coefficient of variation within week
+      - "Num_Days_With_Txn"          # Count of days with transactions
+      - "Num_Transactions_Week"      # Total transaction count per week
+
+  # Weekly-level features
+  lags:
+    enabled: true
+    max_lag: 52  # Lags 1 to 52 weeks
+
+  rolling_stats:
+    enabled: true
+    windows: [4, 12, 26, 52]  # 4-week, 12-week, 26-week, 52-week
+    statistics: ["mean", "median", "std", "min", "max", "range"]
+
+  calendar:
+    enabled: true
+    features:
+      - "Week_of_Year"
+      - "Month"
+      - "Quarter"
+      - "Is_Month_End"
+      - "Is_Quarter_End"
+      - "Is_Year_End"
+      - "Days_To_Month_End"
+      - "Days_To_Quarter_End"
+      - "Holiday_Flag"
+      - "Holiday_Next_Week"
+      - "Weeks_Since_Year_Start"
+      - "Weeks_To_Year_End"
+
+  trend:
+    enabled: true
+    features:
+      - "Slope_4w"
+      - "Slope_12w"
+      - "Momentum_4w"
+      - "Momentum_12w"
+      - "Acceleration_4w"
+      - "Relative_Position_4w"
+      - "Relative_Position_12w"
+      - "YoY_Change"
+
+  liquidity_plans:
+    enabled: true
+    horizons: [1, 2, 3, 4]  # LP forecasts for W+1 to W+4
+
+  entity_encoding:
+    enabled: true
+    method: "onehot"  # One-hot encoding for top 15 entities
+    top_n: 15
+
+  liquidity_group:
+    enabled: true  # Binary flag: Is_TRR (1 for TRR, 0 for TRP)
+
+# Modeling configuration
+modeling:
+  # Random seeds for reproducibility
+  random_seed: 42
+
+  # Forecast horizons (weeks ahead)
+  horizons: [1, 2, 3, 4, 5, 6, 7, 8]
+
+  # Learners to train
+  learners: ["lightgbm", "xgboost", "lstm", "sarimax"]
+
+  # Quantiles to predict
+  quantiles: [0.85, 0.90, 0.95, 0.99]
+  quantile_optional: [0.75]  # Optional lower quantile
+
+  # Multi-horizon strategies
+  strategy:
+    recursive: true           # 1-step model, predictions replace lags
+    direct_horizons: [1, 2, 3, 4, 5, 6, 7, 8]  # 8 separate models
+    dirrec: true             # Direct for W1-W4, Recursive W5-W8
+
+  # Hierarchy definition
+  hierarchy:
+    type: "grouped"          # Grouped time-series via S matrix
+    leaves: ["TRR", "TRP"]   # Per entity: (Entity, TRR), (Entity, TRP)
+
+  # Reconciliation method
+  reconciliation: "mint_ols"  # MinT with OLS covariance
+
+  # Constraint enforcement
+  constraints:
+    enforce_signs: true      # TRR >= 0, TRP <= 0
+    clip_violations: true
+
+  # Learner-specific hyperparameters
+  lightgbm:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 7
+    num_leaves: 63
+    min_child_samples: 20
+    subsample: 0.8
+    colsample_bytree: 0.8
+    objective: "regression"  # Will be overridden for quantiles
+    verbose: -1
+
+  xgboost:
+    n_estimators: 500
+    learning_rate: 0.05
+    max_depth: 7
+    min_child_weight: 5
+    subsample: 0.8
+    colsample_bytree: 0.8
+    objective: "reg:squarederror"  # Will be overridden for quantiles
+    eval_metric: "mae"
+
+  lstm:
+    sequence_length: 52
+    hidden_units: [128, 64]
+    dropout: 0.2
+    batch_size: 32
+    epochs: 100
+    patience: 10  # Early stopping
+    learning_rate: 0.001
+
+  sarimax:
+    order: [1, 0, 1]         # (p, d, q)
+    seasonal_order: [1, 0, 1, 52]  # (P, D, Q, s) - 52-week seasonality
+    use_exog: true           # Include LP and calendar features
+
+  # Ensemble configuration
+  ensemble:
+    enabled: true
+    method: "ridge"          # Ridge regression meta-learner
+    alpha: 1.0
+    use_cv_predictions: true  # Use out-of-fold predictions for stacking
+
+# Cross-validation configuration
+cv:
+  method: "rolling_origin"
+  n_splits: 5
+  embargo_weeks: 1          # Buffer between train and test
+  min_history_weeks: 52     # Minimum training history required
+  test_size_weeks: 8        # Each test fold = 8 weeks (one full forecast)
+
+# Performance monitoring
+monitoring:
+  # Per-horizon WAPE targets (entity-level)
+  # Business requirement: W1-W2: 5%, W3-W4: 10%, W5-W6: 15%, W7-W8: 20%
+  # Conservative targets with gradual degradation
+  wape_targets:
+    "1": 0.05    # 95% accuracy - W1
+    "2": 0.075   # 92.5% accuracy - W2
+    "3": 0.10    # 90% accuracy - W3
+    "4": 0.125   # 87.5% accuracy - W4
+    "5": 0.15    # 85% accuracy - W5
+    "6": 0.175   # 82.5% accuracy - W6
+    "7": 0.20    # 80% accuracy - W7
+    "8": 0.225   # 77.5% accuracy - W8
+
+  # Week-over-week deterioration threshold (percentage points)
+  wow_wape_deterioration_pp: 3
+
+  # Minimum directionality (% correct sign predictions)
+  directionality_min:
+    "1": 0.85
+    "2": 0.85
+    "3": 0.80
+    "4": 0.80
+    "5": 0.75
+    "6": 0.75
+    "7": 0.70
+    "8": 0.70
+
+  # Prediction interval coverage probability target
+  picp_target: 0.80
+
+  # Data drift detection (Population Stability Index)
+  drift_psi_threshold: 0.20
+
+  # Fallback logic
+  fallback:
+    enabled: true
+    trigger_wape_excess: 0.15  # If WAPE exceeds target + 15pp
+    trigger_directionality_min: 0.70
+    horizons_ml: [1, 2, 3, 4]  # Use ML for W1-W4
+    horizons_lp: [5, 6, 7, 8]  # Use LP extrapolation for W5-W8
+
+# Publishing configuration
+publishing:
+  write_parquet: true
+  write_excel: true
+  partition_by: ["asof_week"]
+  excel_filename: "forecasts_{asof}.xlsx"
+  excel_sheets:
+    - "Bottom_Leaf"      # 30 series: Entity × {TRR, TRP}
+    - "Entity_Net"       # 15 series: Entity Net
+    - "Group_TRR"        # 1 series: Group TRR total
+    - "Group_TRP"        # 1 series: Group TRP total
+    - "Group_Net"        # 1 series: Group Net total
+    - "Metrics"          # Performance metrics
+    - "Metadata"         # Run metadata and audit trail
+
+# User interface
+ui:
+  enable_streamlit: true
+  theme: "light"
+  page_title: "Hubble.AI Treasury Forecasting"
+  page_icon: "🔭"
+  layout: "wide"
+
+# Cloud deployment stubs (disabled by default)
+cloud_stubs:
+  enable_azure_ml_stub: false
+  enable_sagemaker_stub: false
+
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG | INFO | WARNING | ERROR
+  format: "json"  # json | text
+  file: "logs/cf_forecast.log"
+  rotation: "daily"
+  retention_days: 30

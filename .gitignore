@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# Data files (large)
+data/raw/*.csv
+data/raw/*.xlsx
+data/intermediate/*.parquet
+data/features/*.parquet
+
+# Artifacts
+artifacts/models/*
+artifacts/forecasts/*
+artifacts/metrics/*
+
+# Credentials
+configs/credentials.yml
+*.key
+*.pem
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/intermediate/.gitkeep
+!data/features/.gitkeep
+!artifacts/models/.gitkeep
+!artifacts/forecasts/.gitkeep
+!artifacts/metrics/.gitkeep
