@@ -61,6 +61,15 @@ class ForecastPipeline:
 
         # Step 3: Preprocess
         logger.info("Step 3: Preprocessing data")
+
+        # Preprocess daily actuals (standardize column names but don't aggregate yet)
+        daily_actuals_processed = self.preprocessor.standardize_actuals_columns(data["actuals"])
+        # Filter to asof_date for daily patterns
+        daily_actuals_processed = daily_actuals_processed[
+            daily_actuals_processed["posting_date"] <= asof_date
+        ].copy()
+
+        # Prepare weekly modeling data
         modeling_df = self.preprocessor.prepare_modeling_data(
             data["actuals"],
             data["lp"],
@@ -71,7 +80,7 @@ class ForecastPipeline:
 
         # Step 4: Feature engineering
         logger.info("Step 4: Engineering features")
-        features_df = self.feature_engineer.build_features(modeling_df, data["actuals"])
+        features_df = self.feature_engineer.build_features(modeling_df, daily_actuals_processed)
         results["features_engineered"] = len(get_feature_columns(features_df))
 
         # Step 5: Train and forecast

@@ -124,17 +124,27 @@ with tab1:
                 # Step 3: Preprocess
                 status_text.text("Step 3/7: Preprocessing...")
                 progress_bar.progress(3/7)
+
+                asof_datetime = datetime.combine(asof_date, datetime.min.time())
+
+                # Preprocess daily actuals (standardize columns but don't aggregate)
+                daily_actuals_processed = pipeline.preprocessor.standardize_actuals_columns(data["actuals"])
+                daily_actuals_processed = daily_actuals_processed[
+                    daily_actuals_processed["posting_date"] <= asof_datetime
+                ].copy()
+
+                # Prepare weekly modeling data
                 modeling_df = pipeline.preprocessor.prepare_modeling_data(
                     data["actuals"],
                     data["lp"],
                     data["entity_mapping"],
-                    datetime.combine(asof_date, datetime.min.time())
+                    asof_datetime
                 )
 
                 # Step 4: Features
                 status_text.text("Step 4/7: Engineering features...")
                 progress_bar.progress(4/7)
-                features_df = pipeline.feature_engineer.build_features(modeling_df, data["actuals"])
+                features_df = pipeline.feature_engineer.build_features(modeling_df, daily_actuals_processed)
 
                 # Step 5: Train & Forecast
                 status_text.text("Step 5/7: Training and forecasting...")

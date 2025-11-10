@@ -42,6 +42,32 @@ class DataPreprocessor:
         self.currency = config.get("project", {}).get("currency", "EUR")
         logger.info("Initialized DataPreprocessor", currency=self.currency)
 
+    def standardize_actuals_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Standardize column names for actuals data (without aggregation).
+
+        Args:
+            df: Daily actuals with raw column names
+
+        Returns:
+            DataFrame with standardized column names
+        """
+        df_proc = df.copy()
+        df_proc = df_proc.rename(
+            columns={
+                "Entity": "entity_id",
+                "Value Date": "posting_date",
+                "Amount Functional Currency": "amount_eur",
+                "Liquidity Group": "liquidity_group",
+            }
+        )
+
+        # Ensure proper types
+        df_proc["posting_date"] = pd.to_datetime(df_proc["posting_date"])
+        df_proc["amount_eur"] = pd.to_numeric(df_proc["amount_eur"])
+
+        return df_proc
+
     def process_actuals_daily_to_weekly(
         self, df: pd.DataFrame, asof_date: Optional[datetime] = None
     ) -> pd.DataFrame:
@@ -57,20 +83,8 @@ class DataPreprocessor:
         """
         logger.info("Aggregating daily actuals to weekly", rows=len(df))
 
-        # Standardize column names
-        df_proc = df.copy()
-        df_proc = df_proc.rename(
-            columns={
-                "Entity": "entity_id",
-                "Value Date": "posting_date",
-                "Amount Functional Currency": "amount_eur",
-                "Liquidity Group": "liquidity_group",
-            }
-        )
-
-        # Ensure proper types
-        df_proc["posting_date"] = pd.to_datetime(df_proc["posting_date"])
-        df_proc["amount_eur"] = pd.to_numeric(df_proc["amount_eur"])
+        # Standardize column names using helper method
+        df_proc = self.standardize_actuals_columns(df)
 
         # Filter by asof_date if provided (only use historical data)
         if asof_date is not None:
