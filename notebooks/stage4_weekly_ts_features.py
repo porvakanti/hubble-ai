@@ -46,20 +46,18 @@ print("="*80)
 # Group by entity × liquidity group
 grouped = weekly_actuals.groupby(['entity_id', 'liquidity_group'])
 
-# Create lags 1-8 (for 8-week forecasting)
-lag_periods = [1, 2, 3, 4, 5, 6, 7, 8, 52]  # Including 52 for year-over-year
+# Create lags 1-52 (full year of historical lags)
+lag_periods = list(range(1, 53))  # lag_1 through lag_52
 
-print(f"\nCreating lag features for {len(lag_periods)} periods...")
+print(f"\nCreating lag features for {len(lag_periods)} periods (lag_1 to lag_52)...")
 
 for lag in lag_periods:
-    print(f"  lag_{lag}...")
+    if lag % 10 == 0:
+        print(f"  lag_{lag}...")
     weekly_actuals[f'lag_{lag}'] = grouped['amount_eur'].shift(lag)
 
-    # Also create lag for transaction count
-    weekly_actuals[f'lag_{lag}_txn_count'] = grouped['txn_count'].shift(lag)
-
-lag_features_created = len(lag_periods) * 2  # amount + txn_count
-print(f"\n✓ Created {lag_features_created} lag features")
+lag_features_created = len(lag_periods)  # 52 lags
+print(f"\n✓ Created {lag_features_created} lag features (lag_1 to lag_52)")
 
 # =============================================================================
 # 4.2: ROLLING WINDOW FEATURES
@@ -309,7 +307,7 @@ stage4_features = (
 )
 
 print(f"\n✓ WEEKLY TIME-SERIES FEATURES CREATED: {stage4_features}")
-print(f"  - Lag features: {lag_features_created}")
+print(f"  - Lag features: {lag_features_created} (lag_1 through lag_52)")
 print(f"  - Rolling windows: {rolling_features_created}")
 print(f"  - Trend features: {trend_features_created}")
 print(f"  - Volatility/Stability: {volatility_features_created}")
@@ -325,10 +323,10 @@ total_features = stage2_features + stage3_features + stage4_features
 print(f"\n✓ CUMULATIVE FEATURE COUNT:")
 print(f"  - Stage 2 (Daily): {stage2_features}")
 print(f"  - Stage 3 (Aggregation): {stage3_features}")
-print(f"  - Stage 4 (Time-Series): {stage4_features}")
+print(f"  - Stage 4 (Time-Series): {stage4_features} (includes 52 lags)")
 print(f"  - Total so far: {total_features}")
 print(f"  - Target: ~118")
-print(f"  - Remaining: ~{118 - total_features} (Stages 5-7: LP features + cross-features)")
+print(f"  - Remaining for Stages 5-7: ~{max(0, 118 - total_features)} (LP features + cross-features)")
 
 # Data quality check
 print(f"\n✓ FINAL DATASET DIMENSIONS:")
