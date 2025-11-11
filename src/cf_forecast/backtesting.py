@@ -188,12 +188,17 @@ class WalkForwardBacktester:
                             (train_df['entity_id'] == entity_id) &
                             (train_df['liquidity_group'] == liq_group)
                         )
-                        entity_X_train = X_train[entity_train_mask]
+                        entity_X_train = X_train[entity_train_mask].copy()
                         entity_y_train = y_train[entity_train_mask]
 
                         if len(entity_y_train) < 10:
                             # Not enough training data
                             continue
+
+                        # Ensure all features are numeric
+                        for col in entity_X_train.columns:
+                            entity_X_train[col] = pd.to_numeric(entity_X_train[col], errors='coerce')
+                        entity_X_train = entity_X_train.fillna(0)
 
                         model.fit(entity_X_train, entity_y_train)
 

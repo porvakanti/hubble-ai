@@ -42,7 +42,19 @@ print("\nLoading training data...")
 training_data = pd.read_csv('data/intermediate/training_data_final.csv')
 training_data['week_start'] = pd.to_datetime(training_data['week_start'])
 
+# Convert all feature columns to numeric (except metadata)
+print("Converting features to numeric...")
+metadata_cols = ['entity_id', 'liquidity_group', 'week_start']
+feature_cols = [col for col in training_data.columns if col not in metadata_cols and col != 'amount_eur']
+
+for col in feature_cols:
+    training_data[col] = pd.to_numeric(training_data[col], errors='coerce')
+
+training_data[feature_cols] = training_data[feature_cols].fillna(0)
+training_data['amount_eur'] = pd.to_numeric(training_data['amount_eur'], errors='coerce')
+
 print(f"  Rows: {len(training_data):,}")
+print(f"  Features: {len(feature_cols)} (all numeric)")
 print(f"  Date range: {training_data['week_start'].min().date()} to {training_data['week_start'].max().date()}")
 
 # Define backtesting period (last 6 months)
