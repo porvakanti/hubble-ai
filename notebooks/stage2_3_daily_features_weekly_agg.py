@@ -12,6 +12,18 @@ This script creates ~118 features following a multi-stage approach:
 4. Filter to Tier 1 entities for ML training
 """
 
+import pandas as pd
+import numpy as np
+from pathlib import Path
+
+# Load raw data
+print("\nLoading raw actuals data...")
+actuals = pd.read_csv('../data/raw/actuals_curated.csv')
+actuals['Value Date'] = pd.to_datetime(actuals['Value Date'])
+
+print(f"  Rows: {len(actuals):,}")
+print(f"  Date range: {actuals['Value Date'].min().date()} to {actuals['Value Date'].max().date()}")
+
 # =============================================================================
 # STAGE 2: FEATURE ENGINEERING - DAILY LEVEL
 # =============================================================================

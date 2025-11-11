@@ -24,14 +24,18 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
 from cf_forecast.backtesting import WalkForwardBacktester
-from cf_forecast.config import load_config
 
 print("="*80)
 print("WALK-FORWARD BACKTESTING")
 print("="*80)
 
-# Load config
-config = load_config()
+# Create simple config
+config = {
+    'target_column': 'amount_eur',
+    'entity_column': 'entity_id',
+    'liquidity_group_column': 'liquidity_group',
+    'week_column': 'week_start'
+}
 
 # Load training data from Stage 8
 print("\nLoading training data...")
