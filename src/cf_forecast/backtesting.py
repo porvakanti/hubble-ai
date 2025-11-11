@@ -161,7 +161,13 @@ class WalkForwardBacktester:
         feature_cols = get_feature_columns(train_df)
 
         # Prepare training data
-        X_train = train_df[feature_cols].fillna(0)
+        X_train = train_df[feature_cols].copy()
+
+        # Convert all features to numeric to prevent dtype issues
+        for col in feature_cols:
+            X_train[col] = pd.to_numeric(X_train[col], errors='coerce')
+
+        X_train = X_train.fillna(0)
         y_train = train_df['amount_eur']
 
         # Group by entity × liquidity_group
@@ -215,10 +221,16 @@ class WalkForwardBacktester:
                             actual_value = actual_row['amount_eur']
 
                             # Get features for forecasting
-                            X_forecast = actual_row[feature_cols].fillna(0).values.reshape(1, -1)
+                            X_forecast_df = pd.DataFrame([actual_row[feature_cols]], columns=feature_cols)
+
+                            # Convert to numeric
+                            for col in feature_cols:
+                                X_forecast_df[col] = pd.to_numeric(X_forecast_df[col], errors='coerce')
+
+                            X_forecast_df = X_forecast_df.fillna(0)
 
                             # Predict (get p90 as point forecast)
-                            predictions = model.predict(pd.DataFrame(X_forecast, columns=feature_cols))
+                            predictions = model.predict(X_forecast_df)
 
                             if isinstance(predictions, dict):
                                 forecast_value = predictions.get('p90', [0])[0]

@@ -273,6 +273,19 @@ print("\n" + "="*80)
 print("8.9: SAVING FINAL DATASETS")
 print("="*80)
 
+# Ensure all numeric features have proper dtypes before saving
+print("\nConverting all features to numeric dtypes...")
+for col in feature_cols:
+    training_data[col] = pd.to_numeric(training_data[col], errors='coerce')
+
+training_data[feature_cols] = training_data[feature_cols].fillna(0)
+training_data['amount_eur'] = pd.to_numeric(training_data['amount_eur'], errors='coerce')
+
+# Verify dtypes
+numeric_count = training_data[feature_cols].select_dtypes(include=[np.number]).shape[1]
+print(f"  Numeric features: {numeric_count}/{len(feature_cols)}")
+print(f"  Target dtype: {training_data['amount_eur'].dtype}")
+
 # Save complete dataset
 training_data.to_csv('../data/intermediate/training_data_final.csv', index=False)
 print(f"\n✓ Saved: data/intermediate/training_data_final.csv")
