@@ -1,0 +1,106 @@
+
+================================================================================
+WALK-FORWARD BACKTESTING REPORT
+================================================================================
+
+BACKTESTING PERIOD:
+  Start: 2025-03-31
+  End: 2025-09-29
+  Total weeks: 27
+  Total forecasts: 11,850
+
+OVERALL PERFORMANCE:
+  Mean WAPE: 2258038.07%
+  Median WAPE: 14.47%
+  Mean Absolute Error: €924,272.64
+  Directionality: 99.0%
+  % Meeting Target: 46.5%
+
+PERFORMANCE BY HORIZON:
+
+  W1:
+    Mean WAPE: 842335.28%
+    Target: ≤5.0%
+    Status: ❌ FAIL
+    % Meeting Target: 31.7%
+    Forecast Count: 1,708
+
+  W2:
+    Mean WAPE: 876163.38%
+    Target: ≤7.5%
+    Status: ❌ FAIL
+    % Meeting Target: 37.8%
+    Forecast Count: 1,642
+
+  W3:
+    Mean WAPE: 911711.85%
+    Target: ≤10.0%
+    Status: ❌ FAIL
+    % Meeting Target: 43.3%
+    Forecast Count: 1,578
+
+  W4:
+    Mean WAPE: 657231.68%
+    Target: ≤12.5%
+    Status: ❌ FAIL
+    % Meeting Target: 47.8%
+    Forecast Count: 1,514
+
+  W5:
+    Mean WAPE: 1526665.14%
+    Target: ≤15.0%
+    Status: ❌ FAIL
+    % Meeting Target: 50.6%
+    Forecast Count: 1,448
+
+  W6:
+    Mean WAPE: 1597379.16%
+    Target: ≤17.5%
+    Status: ❌ FAIL
+    % Meeting Target: 53.9%
+    Forecast Count: 1,384
+
+  W7:
+    Mean WAPE: 1674813.12%
+    Target: ≤20.0%
+    Status: ❌ FAIL
+    % Meeting Target: 55.5%
+    Forecast Count: 1,320
+
+  W8:
+    Mean WAPE: 11794996.01%
+    Target: ≤22.5%
+    Status: ❌ FAIL
+    % Meeting Target: 58.0%
+    Forecast Count: 1,256
+
+PERFORMANCE BY MODEL:
+
+  LIGHTGBM:
+    Mean WAPE: 4339924.70%
+    % Meeting Target: 45.3%
+    Directionality: 99.5%
+
+  XGBOOST:
+    Mean WAPE: 176151.45%
+    % Meeting Target: 47.7%
+    Directionality: 98.4%
+
+PERFORMANCE BY STRATEGY:
+
+  RECURSIVE:
+    Mean WAPE: 2258038.07%
+    % Meeting Target: 46.5%
+
+================================================================================
+RECOMMENDATION:
+
+⚠️ NOT READY FOR PRODUCTION
+   - Only 0/8 horizons meeting WAPE targets
+   - Recommendations:
+     1. Review feature engineering (add more predictive features)
+     2. Hyperparameter tuning for underperforming models
+     3. Consider ensemble methods
+     4. Analyze failing horizons for patterns
+
+================================================================================

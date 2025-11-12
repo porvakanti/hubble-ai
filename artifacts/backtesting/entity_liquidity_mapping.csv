@@ -1,0 +1,35 @@
+Entity,Liq_Group,W1_WAPE,Data_Weeks,CV,Total_Volume_M,Near_Zero_Pct,Expected_Per_RefMap,Comments,Portfolio_Pct,Decision,Exclude
+86W,TRP,44.8,191,1.07,219.41,0.0,True,"Usually TRR, with small amount of payables",0.66,LowVol+PoorWAPE,True
+V508,TRP,45.9,196,0.97,20.59,3.1,True,-,0.06,LowVol+PoorWAPE,True
+057,TRP,46.3,160,1.28,22.89,3.1,True,-,0.07,LowVol+PoorWAPE,True
+V265,TRP,46.8,189,1.07,104.65,2.1,True,"Usually TRR, with small amount of payables",0.31,LowVol+PoorWAPE,True
+V756,TRP,51.7,193,1.29,146.95,4.7,True,-,0.44,LowVol+PoorWAPE,True
+V002,TRR,54.0,195,1.7,69.54,0.0,False,Usually just TRP,0.21,"LowVol+PoorWAPE, NotExpected+Poor",True
+4B9,TRP,58.6,190,1.59,40.1,0.0,True,LP updates sometimes missing; liquidity mix unspecified,0.12,LowVol+PoorWAPE,True
+11G5,TRR,80.7,77,2.11,6.86,15.6,False,Usually just TRP,0.02,"WAPE>80%, Data<100wks, LowVol+PoorWAPE, HighNearZero, NotExpected+Poor",True
+17C7,TRR,100.8,112,6.08,80.79,16.1,False,Usually just TRP,0.24,"WAPE>80%, HighCV+PoorWAPE, LowVol+PoorWAPE, HighNearZero, NotExpected+Poor",True
+14C1,TRR,125.9,99,1.85,176.06,9.1,False,Usually just TRP,0.53,"WAPE>80%, Data<100wks, LowVol+PoorWAPE, NotExpected+Poor",True
+20B2,TRR,137.2,57,1.67,1.96,31.6,True,No LP inputs presently,0.01,"WAPE>80%, Data<100wks, LowVol+PoorWAPE, HighNearZero",True
+T056,TRR,292.1,196,3.76,237.41,0.0,False,Usually just TRP,0.71,"WAPE>80%, HighCV+PoorWAPE, LowVol+PoorWAPE, NotExpected+Poor",True
+V798,TRR,9.6,196,0.27,3050.87,0.0,True,-,9.12,Keep,False
+4B9,TRR,10.3,196,0.63,293.92,0.0,True,LP updates sometimes missing; liquidity mix unspecified,0.88,Keep,False
+97C,TRR,13.1,196,0.47,2792.56,0.0,True,-,8.35,Keep,False
+V265,TRR,14.7,196,0.41,457.82,0.0,True,"Usually TRR, with small amount of payables",1.37,Keep,False
+V751,TRR,15.0,196,0.44,464.63,0.0,True,-,1.39,Keep,False
+T055,TRR,15.1,196,0.37,499.88,0.0,True,"Usually TRR, with small amount of payables",1.49,Keep,False
+T056,TRP,15.1,196,0.82,3165.45,0.0,True,Usually just TRP,9.46,Keep,False
+97R,TRR,16.0,196,0.33,3928.87,0.0,True,-,11.74,Keep,False
+057,TRR,17.7,196,0.46,257.99,0.0,True,-,0.77,Keep,False
+V508,TRR,17.7,196,1.0,559.33,0.0,True,-,1.67,Keep,False
+20B2,TRP,19.4,193,0.87,90.26,0.0,True,No LP inputs presently,0.27,Keep,False
+T055,TRP,20.1,187,0.77,25.91,3.7,True,"Usually TRR, with small amount of payables",0.08,Keep,False
+14C1,TRP,20.5,196,0.89,6559.38,0.0,True,Usually just TRP,19.61,Keep,False
+V002,TRP,21.2,196,0.78,840.54,0.0,True,Usually just TRP,2.51,Keep,False
+V756,TRR,21.3,196,1.38,1545.18,0.0,True,-,4.62,Keep,False
+97C,TRP,21.9,196,0.79,1146.22,0.0,True,-,3.43,Keep,False
+86W,TRR,22.1,196,0.52,5207.94,0.0,True,"Usually TRR, with small amount of payables",15.57,Keep,False
+V798,TRP,25.5,196,0.59,203.78,0.5,True,-,0.61,Keep,False
+11G5,TRP,26.8,184,1.08,192.52,5.4,True,Usually just TRP,0.58,Keep,False
+97R,TRP,28.6,196,0.73,846.15,0.0,True,-,2.53,Keep,False
+V751,TRP,37.8,196,1.02,32.98,3.6,True,-,0.1,Keep,False
+17C7,TRP,39.0,195,0.99,166.8,0.5,True,Usually just TRP,0.5,Keep,False
