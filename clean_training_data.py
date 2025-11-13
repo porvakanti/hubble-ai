@@ -47,16 +47,18 @@ print()
 
 # Step 2: Replace zeros in LP features with NaN
 print("4. Replacing zeros in LP features with NaN...")
-lp_features = [col for col in all_feature_cols if col.startswith('lp_w') and col in ['lp_w1', 'lp_w2', 'lp_w3', 'lp_w4']]
+lp_features = ['W1_Forecast', 'W2_Forecast', 'W3_Forecast', 'W4_Forecast']
 
-if lp_features:
-    for col in lp_features:
-        if col in df_clean.columns:
-            zero_count = (df_clean[col] == 0).sum()
-            df_clean.loc[df_clean[col] == 0, col] = np.nan
-            print(f"   {col}: {zero_count} zeros replaced with NaN")
-else:
-    print("   No LP features found (lp_w1, lp_w2, lp_w3, lp_w4)")
+zeros_replaced = 0
+for col in lp_features:
+    if col in df_clean.columns:
+        zero_count = (df_clean[col] == 0).sum()
+        df_clean.loc[df_clean[col] == 0, col] = np.nan
+        zeros_replaced += zero_count
+        print(f"   {col}: {zero_count} zeros replaced with NaN")
+
+if zeros_replaced == 0:
+    print("   No zeros found in LP forecast features")
 print()
 
 # Step 3: Remove forecast-vs-actual comparison features
@@ -153,7 +155,7 @@ print()
 print("SUMMARY OF CHANGES:")
 print("-" * 80)
 print(f"1. ✅ Started from week 53 (Feb 27, 2023)")
-print(f"2. ✅ Replaced zeros in LP features with NaN: {len(lp_features)} features")
+print(f"2. ✅ Replaced zeros in LP features with NaN: 4 features, {zeros_replaced} zeros total")
 print(f"3. ✅ Removed forecast-vs-actual features: {len(vs_actual_features)} features")
 print(f"4. ✅ Removed zero-variance features: {len(zero_var_features)} features")
 print(f"5. ✅ Removed questionable features: {len(questionable_features)} features")
