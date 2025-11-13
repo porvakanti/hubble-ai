@@ -1,110 +1,20 @@
 #!/usr/bin/env python3
 """
-Run LightGBM + Recursive Strategy Backtest
-3-month validation period - using CLEAN dataset (week 53+, no leakage, NaN for LP zeros).
+Quick analysis of LightGBM Recursive results with clean dataset
 """
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from datetime import datetime
-import sys
-sys.path.append('src')
 
-from cf_forecast.backtesting import WalkForwardBacktester
-
-print("=" * 80)
-print("LIGHTGBM + RECURSIVE BACKTEST (3-MONTH VALIDATION - CLEAN DATA)")
-print("=" * 80)
-print()
-
-# Load CLEAN training data (week 53+, no leakage, LP zeros -> NaN)
-print("Loading CLEAN training data...")
-training_data = pd.read_csv('data/intermediate/training_data_clean.csv')
-
-# Convert week_start to datetime
-training_data['week_start'] = pd.to_datetime(training_data['week_start'])
-
-# Convert features to numeric
-print("Converting features to numeric...")
-feature_cols = [col for col in training_data.columns
-                if col not in ['entity_id', 'liquidity_group', 'week_start', 'amount_eur']]
-
-for col in feature_cols:
-    training_data[col] = pd.to_numeric(training_data[col], errors='coerce')
-training_data[feature_cols] = training_data[feature_cols].fillna(0)
-
-print(f"  Rows: {len(training_data):,}")
-print(f"  Features: {len(feature_cols)}")
-print(f"  Entities: {training_data['entity_id'].nunique()}")
-print(f"  Entity-liq combinations: {training_data.groupby(['entity_id', 'liquidity_group']).ngroups}")
-print()
-
-# Backtest configuration - 3 MONTHS
-start_date = pd.Timestamp('2025-07-07')
-end_date = pd.Timestamp('2025-09-29')
-weeks = (end_date - start_date).days // 7 + 1
-
-print("Backtest period (3 months):")
-print(f"  Start: {start_date.date()}")
-print(f"  End: {end_date.date()}")
-print(f"  Weeks: {weeks}")
-print()
-
-print("Configuration:")
-print("  Model: LightGBM")
-print("  Strategy: Recursive")
-print("  Horizons: W1-W8")
-print()
-
-print("Estimated time: ~15 minutes")
-print()
-
-# Initialize backtester
-config = {
-    'target_column': 'amount_eur',
-    'entity_column': 'entity_id',
-    'liquidity_group_column': 'liquidity_group',
-    'date_column': 'week_start'
-}
-backtester = WalkForwardBacktester(config)
-
-# Run backtest
-print("=" * 80)
-print("STARTING BACKTEST...")
-print("=" * 80)
-print()
-
-results = backtester.run_backtest(
-    training_data=training_data,
-    start_date=start_date,
-    end_date=end_date,
-    models=['lightgbm'],
-    strategies=['recursive']
-)
-
-# Save results
-timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-output_dir = Path('artifacts/backtesting/3month')
-output_dir.mkdir(parents=True, exist_ok=True)
-output_file = output_dir / f'lightgbm_recursive_3month_{timestamp}.csv'
-results.to_csv(output_file, index=False)
-
-print()
-print("=" * 80)
-print("BACKTEST COMPLETE")
-print("=" * 80)
-print()
-print(f"Results saved to: {output_file}")
-print()
-
-# Quick analysis
-print("=" * 80)
-print("QUICK ANALYSIS")
-print("=" * 80)
-print()
+# Load results
+results = pd.read_csv('artifacts/backtesting/3month/lightgbm_recursive_3month_20251113_105113.csv')
 
 # Filter near-zero actuals
 results_clean = results[results['actual'].abs() >= 1000].copy()
+
+print("=" * 80)
+print("LIGHTGBM RECURSIVE - CLEAN DATASET RESULTS")
+print("=" * 80)
+print()
 
 print(f"Total forecasts: {len(results):,}")
 print(f"After filtering |actual| < €1,000: {len(results_clean):,}")
@@ -205,5 +115,5 @@ for idx, row in entity_df.tail(5).iterrows():
 
 print()
 print("=" * 80)
-print("LIGHTGBM COMPLETE - AWAITING USER APPROVAL FOR XGBOOST")
+print("ANALYSIS COMPLETE")
 print("=" * 80)
